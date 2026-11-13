@@ -10,8 +10,10 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
   - liquidada = ese % es menor a 1 (100%); el resto queda "Por liquidar";
   - % liquidado = líneas liquidadas ÷ líneas que cuentan.
   - La regla vive en la vista `publico_liqc_lineas` (columnas `cuenta` y `liquidada`), no en la pantalla.
-- KPIs: % liquidado, líneas del reporte (y órdenes de corte), liquidadas, por liquidar. Paneles: avance por módulo y por grupo. Tabla con cada línea (botones Todas / Por liquidar / Liquidadas, que solo filtran la tabla). Regla 500 sin filtros.
-- Filtros: buscar estilo (solo estilo), período del reporte (por defecto el último cargado), módulo y grupo.
+- KPIs: % liquidado, líneas del reporte (y órdenes de corte), liquidadas, por liquidar.
+- Gráfico "% liquidado por mes": una línea por año, con la fecha de la orden de corte. Siempre recorre todos los años (no sigue el filtro de año ni de mes; sí módulo, grupo y estilo). Usa Chart.js y el bloque `lsAnualJs` (copiado de Check List de Orden y Limpieza).
+- Paneles: avance por módulo y por grupo, cada uno con los 15 que tienen más líneas por liquidar (el Excel los trae todos). Tabla con cada línea (botones Todas / Por liquidar / Liquidadas, que solo filtran la tabla). Regla 500 sin filtros.
+- Filtros: buscar estilo (solo estilo), año, mes, módulo y grupo. Por defecto se ve todo lo cargado.
 - Excel LIVES (Resumen igual a la pantalla y Detalle) e Imprimir. Solo lectura: no tiene formulario.
 - "Merma corte" llega vacía en el reporte: se guarda pero no se muestra.
 
