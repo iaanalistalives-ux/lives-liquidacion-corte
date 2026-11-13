@@ -623,6 +623,8 @@ button,input,select{font-family:inherit;}
 /* barra de filtros */
 .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;position:sticky;top:0;z-index:15;}
 .bar input[type=search]{font-size:13.5px;border:1px solid var(--warm);border-radius:8px;padding:8px 12px;background:#fff;color:#333;min-width:190px;}
+.bar #fGru{min-width:150px;width:170px;font-weight:700;color:var(--sage);}
+.bar #fGru::placeholder{font-weight:400;}
 .bar input[type=search]:focus,.bar select:focus{outline:2px solid var(--sage);outline-offset:1px;}
 select{font-size:13.5px;font-weight:700;color:var(--sage);border:1px solid var(--warm);border-radius:8px;padding:7px 12px;background:#fff;cursor:pointer;max-width:260px;}
 .btn{font-size:13px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--warm);background:#fff;color:var(--sage);}
@@ -671,7 +673,21 @@ select{font-size:13.5px;font-weight:700;color:var(--sage);border:1px solid var(-
 .panel .pt{font-size:15px;font-weight:700;}
 .panel .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:12px;max-width:130ch;}
 .pcab{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
-.pcab .seg{margin-left:auto;}
+.pctl{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+/* tarjetas de líneas */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
+.lc{border:1px solid var(--warm);border-left:4px solid var(--taupe);border-radius:10px;padding:12px 14px;background:var(--card);}
+.lc.bue{border-left-color:var(--sage);}
+.lc.low{border-left-color:var(--slate);}
+.lc .top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.lc .fe{font-size:11.5px;color:var(--stone);}
+.lc .ti{font-size:15px;font-weight:700;margin-top:8px;}
+.lc .su{font-size:12px;color:var(--stone);}
+.lc .te{font-size:12.5px;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lc .co{font-size:12px;color:var(--stone);margin-top:2px;}
+.lc .mt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--warm-light);}
+.lc .mt div{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--stone);}
+.lc .mt b{display:block;font-size:14px;color:#333;text-transform:none;letter-spacing:0;}
 
 .cwrap{position:relative;width:100%;height:clamp(260px,34vh,400px);}
 .cwrap canvas{position:absolute;inset:0;}
@@ -727,9 +743,11 @@ td.tela b{font-weight:700;}
   .kpi .v{font-size:38px;}
   .kpi:hover{transform:none;box-shadow:var(--sh);}
   .panel{padding:18px 14px 14px;}
-  .pcab .seg{margin-left:0;}
+  .pctl{margin-left:0;}
+  .cards{grid-template-columns:1fr;}
   table{min-width:980px;}
-  .panel.plegable.plegado .tscroll,.panel.plegable.plegado .seg,.panel.plegable.plegado .lsTope500{display:none!important;}
+  .panel.plegable.plegado .tscroll,.panel.plegable.plegado .lsTope500{display:none!important;}
+  .panel:not(.plegable) .verdet{display:none;}
   .verdet{display:block;width:100%;margin-top:10px;background:#fff;border:1px solid var(--warm);color:var(--sage);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;}
 }
 @media(min-width:601px){.verdet{display:none;}}
@@ -746,6 +764,8 @@ td.tela b{font-weight:700;}
   .kpi.hero .l,.kpi.hero .s{color:var(--stone)!important;}
   .kpi .avance{background:var(--warm-light);}
   .tscroll{overflow:visible;}
+  .cards{grid-template-columns:repeat(4,1fr);gap:6px;}
+  .lc{break-inside:avoid;padding:8px;}
   table{font-size:9.5px;min-width:0;}
   td.tela{min-width:0;}
 }
@@ -753,12 +773,14 @@ td.tela b{font-weight:700;}
 </head>
 <body>
 <div class="wrap">
-  <div class="bar" id="bar">
-    <input type="search" id="fQ" placeholder="Buscar estilo…" autocomplete="off">
+  <div class="bar" id="bar" data-ls-fijo>
+    <input type="search" id="fQ" list="dlEst" placeholder="Buscar estilo…" autocomplete="off">
+    <datalist id="dlEst"></datalist>
     <select id="fAno" aria-label="Año"></select>
     <select id="fMes" aria-label="Mes"></select>
     <select id="fMod" aria-label="Módulo"></select>
-    <select id="fGru" aria-label="Grupo"></select>
+    <input type="search" id="fGru" list="dlGru" placeholder="Grupo…" aria-label="Grupo" autocomplete="off">
+    <datalist id="dlGru"></datalist>
     <span class="spacer"></span>
     <div class="lsAcc"><button type="button" class="btn" id="btnImp">Imprimir</button></div>
   </div>
@@ -810,14 +832,21 @@ td.tela b{font-weight:700;}
       <div class="pcab">
         <div>
           <div class="pt">Líneas del reporte</div>
-          <div class="ph">Una fila por orden de corte y tela. El % de desbalance es lo que falta justificar del ingreso de tela; en paños y en pieza se calcula sobre su propio ingreso.</div>
+          <div class="ph">Una línea por orden de corte y tela. El % de desbalance es lo que falta justificar del ingreso de tela; en paños y en pieza se calcula sobre su propio ingreso.</div>
         </div>
-        <div class="seg" id="segEst">
-          <button type="button" data-e="" class="active">Todas</button>
-          <button type="button" data-e="P">Por liquidar</button>
-          <button type="button" data-e="L">Liquidadas</button>
+        <div class="pctl">
+          <div class="seg" id="segEst">
+            <button type="button" data-e="" class="active">Todas</button>
+            <button type="button" data-e="P">Por liquidar</button>
+            <button type="button" data-e="L">Liquidadas</button>
+          </div>
+          <div class="seg no-print" id="segVis">
+            <button type="button" data-v="tarjetas">Tarjetas</button>
+            <button type="button" data-v="tabla">Tabla</button>
+          </div>
         </div>
       </div>
+      <div class="cards" id="cards"></div>
       <div class="tscroll" id="tScroll">
         <table>
           <thead>
@@ -1037,6 +1066,8 @@ const USUARIO=(function(){
   return n;
 })();
 let CARGAS=[], LINEAS=[], EST='', VIS=[], GRAF=null;
+/* vista de las líneas: tarjetas (por defecto) o tabla; la elección se recuerda en este equipo */
+let VISTA=(function(){ try{ return localStorage.getItem('lives_liqc_vista')==='tabla'?'tabla':'tarjetas'; }catch(e){ return 'tarjetas'; } })();
 const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];
 const MESES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
 const TOPE_RANK=15;
@@ -1086,13 +1117,13 @@ function porGrupo(filas,campo){
 
 /* sinFecha=true: no aplica año ni mes (lo usa el gráfico por mes, que siempre recorre todos los años) */
 function filtradas(sinFecha){
-  const ano=sinFecha?'':$('fAno').value, mes=sinFecha?'':$('fMes').value, mod=$('fMod').value, gru=$('fGru').value, q=norm($('fQ').value);
-  return LINEAS.filter(r=>(!ano||String(r.fecha).slice(0,4)===ano)&&(!mes||String(r.fecha).slice(5,7)===mes)&&(!mod||r.modulo===mod)&&(!gru||r.grupo===gru)&&(!q||norm(r.estilo).indexOf(q)>=0));
+  const ano=sinFecha?'':$('fAno').value, mes=sinFecha?'':$('fMes').value, mod=$('fMod').value, gru=norm($('fGru').value), q=norm($('fQ').value);
+  return LINEAS.filter(r=>(!ano||String(r.fecha).slice(0,4)===ano)&&(!mes||String(r.fecha).slice(5,7)===mes)&&(!mod||r.modulo===mod)&&(!gru||norm(r.grupo).indexOf(gru)>=0)&&(!q||norm(r.estilo).indexOf(q)>=0));
 }
-function hayFiltro(){ return !!($('fAno').value||$('fMes').value||$('fMod').value||$('fGru').value||$('fQ').value.trim()||EST); }
+function hayFiltro(){ return !!($('fAno').value||$('fMes').value||$('fMod').value||$('fGru').value.trim()||$('fQ').value.trim()||EST); }
 function textoFiltro(){
   const a=$('fAno').value, m=$('fMes').value;
-  return [(m?MESES_L[+m-1]+' ':'')+(a||(m?'de todos los años':'Todos los años')), $('fMod').value, $('fGru').value, $('fQ').value.trim()?'estilo "'+$('fQ').value.trim()+'"':''].filter(Boolean).join(' · ');
+  return [(m?MESES_L[+m-1]+' ':'')+(a||(m?'de todos los años':'Todos los años')), $('fMod').value, $('fGru').value.trim()?'grupo "'+$('fGru').value.trim()+'"':'', $('fQ').value.trim()?'estilo "'+$('fQ').value.trim()+'"':''].filter(Boolean).join(' · ');
 }
 function porMes(filas){
   const m=new Map();
@@ -1114,7 +1145,8 @@ function armarListas(){
   const base=LINEAS;
   const uni=c=>[...new Set(base.map(r=>r[c]).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'es',{numeric:true}));
   llenarSelect($('fMod'),'Todos los módulos',uni('modulo').map(v=>[v,v]),$('fMod').value);
-  llenarSelect($('fGru'),'Todos los grupos',uni('grupo').map(v=>[v,v]),$('fGru').value);
+  const sug=(id,vals)=>{ $(id).innerHTML=vals.map(v=>'<option value="'+esc(v)+'"></option>').join(''); };
+  sug('dlGru',uni('grupo')); sug('dlEst',uni('estilo'));
 }
 
 function pintarRank(ul,todos,nota,que){
@@ -1178,7 +1210,19 @@ function render(){
       '<td class="n">'+num(r.pa_ingreso,2)+'</td><td class="n">'+num(r.pa_tendido,2)+'</td><td class="n">'+pct(r.pa_desbalance,1)+'</td>'+
       '<td class="n">'+num(r.pz_ingreso,2)+'</td><td class="n">'+pct(r.pz_desbalance,1)+'</td>'+
       '<td class="n">'+num(r.giradas)+'</td><td class="n">'+num(r.cortadas)+'</td><td class="n">'+num(r.habilitadas)+'</td></tr>'; }).join('');
-  $('tScroll').style.display=D.length?'':'none';
+  const enTabla=VISTA==='tabla';
+  if(enTabla) $('cards').innerHTML=''; else $('tb').innerHTML='';
+  $('cards').innerHTML=enTabla?'':D.map(r=>{ const e=estado(r);
+    return '<div class="lc '+e[0]+'"><div class="top"><span class="st '+e[0]+'">'+e[1]+'</span><span class="fe">'+fecha(r.fecha)+'</span></div>'+
+      '<div class="ti">'+esc(r.grupo)+' · OC '+esc(r.oc)+'</div>'+
+      '<div class="su">Estilo '+esc(r.estilo)+' · OP '+esc(r.op)+(r.partida?' · Partida '+esc(r.partida):'')+'</div>'+
+      '<div class="te"><b>'+esc(r.tela_cod)+'</b> '+esc(r.tela)+'</div>'+
+      '<div class="co">'+esc(r.color)+(r.modulo?' · '+esc(r.modulo):'')+'</div>'+
+      '<div class="mt"><div>Ingreso pieza<b>'+(num(r.pz_ingreso,2)||'—')+'</b></div><div>% desb. pieza<b>'+(pct(r.pz_desbalance,1)||'—')+'</b></div><div>% desb. paños<b>'+(pct(r.pa_desbalance,1)||'—')+'</b></div>'+
+      '<div>Giradas<b>'+(num(r.giradas)||'—')+'</b></div><div>Cortadas<b>'+(num(r.cortadas)||'—')+'</b></div><div>Habilitadas<b>'+(num(r.habilitadas)||'—')+'</b></div></div></div>'; }).join('');
+  $('cards').style.display=(!enTabla&&D.length)?'':'none';
+  $('segVis').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.v===VISTA));
+  $('tScroll').style.display=(enTabla&&D.length)?'':'none';
   $('sinFilas').style.display=D.length?'none':'block';
   $('sinFilas').textContent=D.length?'':(EST==='L'?'Ninguna línea liquidada con estos filtros.':'Ninguna línea por liquidar con estos filtros.');
   $('tope').style.display=tope?'block':'none';
@@ -1190,7 +1234,7 @@ function render(){
 
 function plegarTablasEnCelular(){
   const movil=window.matchMedia('(max-width:600px)').matches, p=$('pTab');
-  if(!movil){ p.classList.remove('plegable','plegado'); return; }
+  if(!movil||VISTA!=='tabla'){ p.classList.remove('plegable','plegado'); return; }
   if(p.classList.contains('plegable')) return;
   p.classList.add('plegable','plegado');
   let b=p.querySelector('.verdet');
@@ -1213,11 +1257,13 @@ async function cargar(){
 }
 
 $('fAno').onchange=render; $('fMes').onchange=render;
-$('fMod').onchange=render; $('fGru').onchange=render;
+$('fMod').onchange=render; $('fGru').oninput=render;
 $('fQ').oninput=render;
 $('btnImp').onclick=function(){ window.print(); };
 $('segEst').onclick=function(ev){ const b=ev.target.closest('button'); if(!b) return;
   EST=b.dataset.e; this.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b)); render(); };
+$('segVis').onclick=function(ev){ const b=ev.target.closest('button'); if(!b||b.dataset.v===VISTA) return;
+  VISTA=b.dataset.v; try{ localStorage.setItem('lives_liqc_vista',VISTA); }catch(e){} render(); };
 window.addEventListener('resize',function(){ if(LINEAS.length) plegarTablasEnCelular(); });
 
 /* Excel con formato LIVES: Resumen igual a la pantalla (con el filtro puesto) y Detalle con cada línea */

@@ -12,8 +12,9 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
   - La regla vive en la vista `publico_liqc_lineas` (columnas `cuenta` y `liquidada`), no en la pantalla.
 - KPIs: % liquidado, líneas del reporte (y órdenes de corte), liquidadas, por liquidar.
 - Gráfico "% liquidado por mes": una línea por año, con la fecha de la orden de corte. Siempre recorre todos los años (no sigue el filtro de año ni de mes; sí módulo, grupo y estilo). Usa Chart.js y el bloque `lsAnualJs` (copiado de Check List de Orden y Limpieza).
-- Paneles: avance por módulo y por grupo, cada uno con los 15 que tienen más líneas por liquidar (el Excel los trae todos). Tabla con cada línea (botones Todas / Por liquidar / Liquidadas, que solo filtran la tabla). Regla 500 sin filtros.
-- Filtros: buscar estilo (solo estilo), año, mes, módulo y grupo. Por defecto se ve todo lo cargado.
+- Paneles: avance por módulo y por grupo, cada uno con los 15 que tienen más líneas por liquidar (el Excel los trae todos).
+- Líneas del reporte: en TARJETAS por defecto, con botón para elegir Tarjetas o Tabla (pedido de Christian, 13/11/2026); la elección se recuerda en ese equipo (`localStorage` `lives_liqc_vista`). Botones Todas / Por liquidar / Liquidadas, que solo filtran las líneas. Regla 500 sin filtros. En celular solo la tabla se pliega tras "Ver tabla"; las tarjetas se ven directo.
+- Filtros: buscar estilo (solo estilo), año, mes, módulo y grupo. Estilo y grupo son cuadros donde se escribe y van saliendo las opciones (`<datalist>`), y también se puede abrir la lista y elegir (pedido de Christian, 13/11/2026); el grupo filtra por lo escrito (contiene). Por defecto se ve todo lo cargado. La barra lleva `data-ls-fijo` para que lo escrito en los filtros no cuente como trabajo sin guardar.
 - Excel LIVES (Resumen igual a la pantalla y Detalle) e Imprimir. Solo lectura: no tiene formulario.
 - "Merma corte" llega vacía en el reporte: se guarda pero no se muestra.
 
@@ -28,7 +29,7 @@ Cada carga reemplaza las líneas que ya había con fecha dentro del rango del re
 - Tablas: `liqc_cargas` (un registro por reporte cargado), `liqc_lineas` (las líneas), `liqc_parametros` (`registro_libre`).
 - Vista: `publico_liqc_lineas`. Funciones: `liqc_api` (puerta única: `leer`, `puede`, `cargar`) y `liqc_puede`.
 - Códigos (regla "Todo codificado"): tela, color y módulo se guardan con su código del sistema (`tela_cod`, `color_cod`, `modulo_cod`) separado del nombre. En pantalla se ve el nombre; el código de tela sí se muestra.
-- No usa Storage ni guarda nada en el navegador.
+- No usa Storage. En el navegador solo guarda la vista elegida (tarjetas o tabla).
 
 ## Quién puede cargar
 `liqc_puede`: durante las pruebas responde sí (`liqc_parametros.registro_libre = si`); Christian siempre puede; Rodrigo solo ve. Ver es libre.
