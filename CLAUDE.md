@@ -10,7 +10,7 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
   - liquidada = ese % es menor a 1 (100%); el resto queda "Por liquidar";
   - % liquidado = líneas liquidadas ÷ líneas que cuentan.
   - La regla vive en la vista `publico_liqc_lineas` (columnas `cuenta` y `liquidada`), no en la pantalla.
-- KPIs: % liquidado, líneas del reporte (y órdenes de corte), liquidadas, por liquidar.
+- KPIs: % liquidado, telas de órdenes de corte (y en cuántas OC), liquidadas, por liquidar. Al presionar la tarjeta "Liquidadas" o "Por liquidar", la lista de abajo queda solo con esas y la pantalla baja a la lista; al volver a presionarla se quita (pedido de Christian, 13/11/2026). Es el mismo filtro que los botones Todas / Por liquidar / Liquidadas de la lista: no cambia los KPI ni los gráficos.
 - Gráfico "% liquidado por mes": una línea por año, con la fecha de la orden de corte. Siempre recorre todos los años (no sigue el filtro de año ni de mes; sí módulo, grupo y estilo). Usa Chart.js y el bloque `lsAnualJs` (copiado de Check List de Orden y Limpieza).
 - Paneles: avance por módulo y por grupo, cada uno con los 15 que tienen más líneas por liquidar (el Excel los trae todos).
 - Líneas del reporte: en TARJETAS por defecto, con botón para elegir Tarjetas o Tabla (pedido de Christian, 13/11/2026); la elección se recuerda en ese equipo (`localStorage` `lives_liqc_vista`). Botones Todas / Por liquidar / Liquidadas, que solo filtran las líneas. Regla 500 sin filtros. En celular solo la tabla se pliega tras "Ver tabla"; las tarjetas se ven directo.
