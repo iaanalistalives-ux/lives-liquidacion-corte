@@ -629,6 +629,8 @@ button,input,select{font-family:inherit;}
 select{font-size:13.5px;font-weight:700;color:var(--sage);border:1px solid var(--warm);border-radius:8px;padding:7px 12px;background:#fff;cursor:pointer;max-width:260px;}
 .btn{font-size:13px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--warm);background:#fff;color:var(--sage);}
 .btn:hover{border-color:var(--sage);}
+.btn:disabled{opacity:.45;cursor:default;}
+.btn:disabled:hover{border-color:var(--warm);}
 .spacer{margin-left:auto;}
 .lsAcc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .seg{display:inline-flex;background:var(--warm-light);border-radius:8px;padding:3px;gap:2px;}
@@ -787,6 +789,7 @@ td.tela b{font-weight:700;}
     <select id="fMod" aria-label="Módulo"></select>
     <input type="search" id="fGru" list="dlGru" placeholder="Grupo…" aria-label="Grupo" autocomplete="off">
     <datalist id="dlGru"></datalist>
+    <button type="button" class="btn" id="btnLim" disabled>Limpiar</button>
     <span class="spacer"></span>
     <div class="lsAcc"><button type="button" class="btn" id="btnImp">Imprimir</button></div>
   </div>
@@ -1171,15 +1174,16 @@ function pintarTendencia(){
   const ds=anos.map((a,k)=>lsEtqAnual.serie(a,MESES.map((_,i)=>{ const o=idx[a+'-'+(i+1)]; return o?+(o.pct*100).toFixed(1):null; }),k===0,col[a]));
   GRAF=new Chart($('cTen'),{type:'line',data:{labels:MESES,datasets:ds},
     options:{animation:{duration:700,easing:'easeOutCubic'},layout:{padding:{top:26,right:14}},interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'top',align:'end',labels:{boxWidth:12,usePointStyle:true,padding:14}},
+      plugins:{legend:{position:'top',align:'start',labels:{boxWidth:10,boxHeight:10,usePointStyle:true,padding:18,font:{size:window.matchMedia('(max-width:600px)').matches?12.5:14,weight:'bold'},generateLabels:function(ch){ const it=Chart.defaults.plugins.legend.labels.generateLabels(ch); it.forEach(x=>{ x.text='Año '+x.text; }); return it; }}},
         lsEtqAnual:{fmt:v=>v.toLocaleString('es-PE',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'},
         tooltip:{callbacks:{label:c=>{ const o=idx[c.dataset.label+'-'+(c.dataIndex+1)]; return o?c.dataset.label+': '+pct(o.pct,1)+' · '+num(o.liq)+' de '+plural(o.total,'tela','telas'):''; }}}},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}},
-    plugins:[lsEtqAnual]});
+    plugins:[lsEtqAnual,{id:'liqLegAire',beforeInit:function(ch){ const f=ch.legend.fit; ch.legend.fit=function(){ f.call(this); this.height+=16; }; }}]});
 }
 function estado(r){ return !r.cuenta?['low','Sin dato']:(r.liquidada?['bue','Liquidada']:['rev','Por liquidar']); }
 
 function render(){
+  $('btnLim').disabled=!hayFiltro();
   const F=filtradas(), R=resumen(F);
   const hay=F.length>0;
   $('kpis').style.display=hay?'':'none';
@@ -1266,6 +1270,11 @@ $('fAno').onchange=render; $('fMes').onchange=render;
 $('fMod').onchange=render; $('fGru').oninput=render;
 $('fQ').oninput=render;
 $('btnImp').onclick=function(){ window.print(); };
+/* Limpiar: quita de una vez todos los filtros (estilo, año, mes, módulo, grupo y Liquidadas / Por liquidar) */
+$('btnLim').onclick=function(){
+  ['fQ','fAno','fMes','fMod','fGru'].forEach(i=>{ $(i).value=''; });
+  ponerEstado('',false);
+};
 function ponerEstado(e,bajar){
   EST=e;
   $('segEst').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.e===EST));
