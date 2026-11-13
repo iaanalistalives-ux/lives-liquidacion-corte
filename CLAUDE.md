@@ -4,7 +4,7 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
 
 ## Qué hace
 `index.html` — "Liquidación de Corte": muestra el reporte del sistema "RESUMEN LIQUIDACION CORTE - ORDENES DE CORTE TERMINADAS" y calcula solo cuántas líneas ya fueron liquidadas y cuántas faltan.
-- Una línea = una orden de corte con una tela (una OC se repite si lleva más de una tela).
+- Lo que se cuenta es cada TELA de cada orden de corte (una OC se repite si lleva más de una tela). En pantalla y en el Excel se llama "telas", nunca "líneas" (decisión de Christian, 13/11/2026: "líneas del reporte" no se entendía). Verificado con el reporte 2025-2026: 4 746 telas en 3 837 OC y 1 635 OP; no coincide con la OP ni con la OC, y el reporte no trae PO. En este archivo y en la base (`liqc_lineas`) "línea" sigue siendo el nombre interno.
 - Regla (decisión de Christian, 13/11/2026; reemplaza las celdas W44, W45 y W46 que él calculaba a mano en el Excel):
   - cuenta la línea que tiene dato en "% DESBALANCE" de CORTE PIEZA;
   - liquidada = ese % es menor a 1 (100%); el resto queda "Por liquidar";

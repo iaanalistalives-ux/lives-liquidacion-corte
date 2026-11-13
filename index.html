@@ -792,11 +792,11 @@ td.tela b{font-weight:700;}
     <div class="kpi hero"><span class="banda"></span><div class="cuerpo">
       <div class="l">% liquidado</div>
       <div class="row"><span class="v" id="kPct">—</span></div>
-      <div class="s">Líneas liquidadas sobre las líneas del reporte</div>
+      <div class="s">Telas liquidadas sobre las telas de las órdenes de corte</div>
       <div class="avance"><i id="kBar"></i></div>
     </div></div>
     <div class="kpi neutro"><span class="banda"></span><div class="cuerpo">
-      <div class="l">Líneas del reporte</div>
+      <div class="l">Telas de órdenes de corte</div>
       <div class="row"><span class="v" id="kTot">—</span></div>
       <div class="s" id="kTotS"></div>
     </div></div>
@@ -815,24 +815,24 @@ td.tela b{font-weight:700;}
   <div class="grid" id="grid">
     <div class="panel col12" id="pTen"><span class="tira resultado"></span>
       <div class="pt">% liquidado por mes</div>
-      <div class="ph">Líneas liquidadas sobre las líneas de cada mes, según la fecha de la orden de corte. Una línea por año; el mes sin órdenes de corte no se dibuja.</div>
+      <div class="ph">Telas liquidadas sobre las telas de cada mes, según la fecha de la orden de corte. El gráfico lleva un trazo por año; el mes sin órdenes de corte no se dibuja.</div>
       <div class="cwrap"><canvas id="cTen"></canvas></div>
     </div>
     <div class="panel col6" id="pMod"><span class="tira resultado"></span>
       <div class="pt">Avance por módulo</div>
-      <div class="ph">Líneas liquidadas sobre las líneas de cada módulo. Una línea es una orden de corte con una tela; está liquidada cuando su % de desbalance de corte en pieza es menor a 100%.<span id="nMod"></span></div>
+      <div class="ph">Telas liquidadas sobre las telas de cada módulo. Se cuenta cada tela de cada orden de corte; está liquidada cuando su % de desbalance de corte en pieza es menor a 100%.<span id="nMod"></span></div>
       <ul class="rank" id="rMod"></ul>
     </div>
     <div class="panel col6" id="pGru"><span class="tira resultado"></span>
       <div class="pt">Avance por grupo</div>
-      <div class="ph">Líneas liquidadas sobre las líneas de cada grupo de producción. Arriba, los grupos con más líneas por liquidar.<span id="nGru"></span></div>
+      <div class="ph">Telas liquidadas sobre las telas de cada grupo de producción. Arriba, los grupos con más telas por liquidar.<span id="nGru"></span></div>
       <ul class="rank" id="rGru"></ul>
     </div>
     <div class="panel col12 tabla" id="pTab"><span class="tira volumen"></span>
       <div class="pcab">
         <div>
-          <div class="pt">Líneas del reporte</div>
-          <div class="ph">Una línea por orden de corte y tela. El % de desbalance es lo que falta justificar del ingreso de tela; en paños y en pieza se calcula sobre su propio ingreso.</div>
+          <div class="pt">Telas por orden de corte</div>
+          <div class="ph">Cada tela de cada orden de corte. El % de desbalance es lo que falta justificar del ingreso de tela; en paños y en pieza se calcula sobre su propio ingreso.</div>
         </div>
         <div class="pctl">
           <div class="seg" id="segEst">
@@ -1066,7 +1066,7 @@ const USUARIO=(function(){
   return n;
 })();
 let CARGAS=[], LINEAS=[], EST='', VIS=[], GRAF=null;
-/* vista de las líneas: tarjetas (por defecto) o tabla; la elección se recuerda en este equipo */
+/* vista de las telas: tarjetas (por defecto) o tabla; la elección se recuerda en este equipo */
 let VISTA=(function(){ try{ return localStorage.getItem('lives_liqc_vista')==='tabla'?'tabla':'tarjetas'; }catch(e){ return 'tarjetas'; } })();
 const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];
 const MESES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
@@ -1096,10 +1096,10 @@ async function api(accion,p){
 }
 
 /* Regla del cuadro (celdas W44, W45 y W46 del Excel):
-   total      = líneas con dato en "% desbalance" de corte en pieza          (W44 = CONTARA)
-   liquidadas = líneas con ese % menor a 1 (100%)                            (W45 = CONTAR.SI "<1")
+   total      = telas con dato en "% desbalance" de corte en pieza          (W44 = CONTARA)
+   liquidadas = telas con ese % menor a 1 (100%)                            (W45 = CONTAR.SI "<1")
    % liquidado = liquidadas / total                                          (W46)
-   La base ya entrega cada línea con "cuenta" y "liquidada". */
+   La base ya entrega cada tela con "cuenta" y "liquidada". */
 function resumen(filas){
   const cuentan=filas.filter(r=>r.cuenta);
   const liq=cuentan.filter(r=>r.liquidada);
@@ -1151,9 +1151,9 @@ function armarListas(){
 
 function pintarRank(ul,todos,nota,que){
   const lista=todos.slice(0,TOPE_RANK);
-  nota.textContent=todos.length>TOPE_RANK?' Se muestran los '+TOPE_RANK+' con más líneas por liquidar, de '+num(todos.length)+' '+que+'.':'';
+  nota.textContent=todos.length>TOPE_RANK?' Se muestran los '+TOPE_RANK+' con más telas por liquidar, de '+num(todos.length)+' '+que+'.':'';
   ul.innerHTML=lista.map(o=>'<li><div><div class="nm">'+esc(o.nombre)+'</div><div class="track"><div class="fill" data-w="'+(o.pct*100).toFixed(1)+'"></div></div></div>'+
-    '<div class="val">'+pct(o.pct,1)+'<small>'+num(o.liq)+' de '+plural(o.total,'línea','líneas')+'</small></div></li>').join('');
+    '<div class="val">'+pct(o.pct,1)+'<small>'+num(o.liq)+' de '+plural(o.total,'tela','telas')+'</small></div></li>').join('');
 }
 function pintarTendencia(){
   const P=porMes(filtradas(true)), pan=$('pTen');
@@ -1167,7 +1167,7 @@ function pintarTendencia(){
     options:{animation:{duration:700,easing:'easeOutCubic'},layout:{padding:{top:26,right:14}},interaction:{mode:'index',intersect:false},
       plugins:{legend:{position:'top',align:'end',labels:{boxWidth:12,usePointStyle:true,padding:14}},
         lsEtqAnual:{fmt:v=>v.toLocaleString('es-PE',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'},
-        tooltip:{callbacks:{label:c=>{ const o=idx[c.dataset.label+'-'+(c.dataIndex+1)]; return o?c.dataset.label+': '+pct(o.pct,1)+' · '+num(o.liq)+' de '+plural(o.total,'línea','líneas'):''; }}}},
+        tooltip:{callbacks:{label:c=>{ const o=idx[c.dataset.label+'-'+(c.dataIndex+1)]; return o?c.dataset.label+': '+pct(o.pct,1)+' · '+num(o.liq)+' de '+plural(o.total,'tela','telas'):''; }}}},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}},
     plugins:[lsEtqAnual]});
 }
@@ -1181,15 +1181,15 @@ function render(){
   const v=$('vacio');
   if(!hay){
     v.style.display='block';
-    v.textContent=LINEAS.length?'No hay líneas de liquidación de corte con esos filtros. Cambia el año, el mes, el módulo, el grupo o el estilo en la barra de arriba.':'Todavía no hay ningún reporte de liquidación de corte cargado.';
+    v.textContent=LINEAS.length?'No hay telas de órdenes de corte con esos filtros. Cambia el año, el mes, el módulo, el grupo o el estilo en la barra de arriba.':'Todavía no hay ningún reporte de liquidación de corte cargado.';
     VIS=[]; if(GRAF){ try{ GRAF.destroy(); }catch(e){} GRAF=null; } return;
   }
   v.style.display='none';
 
   $('kPct').textContent=R.pct===null?'—':pct(R.pct,1);
-  $('kTot').textContent=num(R.total);  $('kTotS').textContent=plural(R.ocTotal,'orden de corte','órdenes de corte');
-  $('kLiq').textContent=num(R.liq);    $('kLiqS').textContent=R.liq?plural(R.ocLiq,'orden de corte','órdenes de corte'):'Ninguna línea liquidada';
-  $('kPen').textContent=num(R.pen);    $('kPenS').textContent=R.pen?plural(R.ocPen,'orden de corte','órdenes de corte'):'Nada por liquidar';
+  $('kTot').textContent=num(R.total);  $('kTotS').textContent='en '+plural(R.ocTotal,'orden de corte','órdenes de corte');
+  $('kLiq').textContent=num(R.liq);    $('kLiqS').textContent=R.liq?'telas, en '+plural(R.ocLiq,'orden de corte','órdenes de corte'):'Ninguna tela liquidada';
+  $('kPen').textContent=num(R.pen);    $('kPenS').textContent=R.pen?'telas, en '+plural(R.ocPen,'orden de corte','órdenes de corte'):'Nada por liquidar';
 
   const M=porGrupo(F,'modulo'), G=porGrupo(F,'grupo');
   $('pMod').style.display=M.length?'':'none'; pintarRank($('rMod'),M,$('nMod'),'módulos');
@@ -1224,7 +1224,7 @@ function render(){
   $('segVis').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.v===VISTA));
   $('tScroll').style.display=(enTabla&&D.length)?'':'none';
   $('sinFilas').style.display=D.length?'none':'block';
-  $('sinFilas').textContent=D.length?'':(EST==='L'?'Ninguna línea liquidada con estos filtros.':'Ninguna línea por liquidar con estos filtros.');
+  $('sinFilas').textContent=D.length?'':(EST==='L'?'Ninguna tela liquidada con estos filtros.':'Ninguna tela por liquidar con estos filtros.');
   $('tope').style.display=tope?'block':'none';
   $('tope').textContent=tope?'Se muestran los 500 registros más recientes de '+num(T.length)+'. Usa los filtros para ver los demás.':'';
 
@@ -1266,23 +1266,23 @@ $('segVis').onclick=function(ev){ const b=ev.target.closest('button'); if(!b||b.
   VISTA=b.dataset.v; try{ localStorage.setItem('lives_liqc_vista',VISTA); }catch(e){} render(); };
 window.addEventListener('resize',function(){ if(LINEAS.length) plegarTablasEnCelular(); });
 
-/* Excel con formato LIVES: Resumen igual a la pantalla (con el filtro puesto) y Detalle con cada línea */
+/* Excel con formato LIVES: Resumen igual a la pantalla (con el filtro puesto) y Detalle con cada tela */
 window.LS_XLS={
   clase:'btn',
   ancla:function(){ return $('btnImp'); },
   datos:function(){
     const col=(campo,titulo,tipo)=>({campo,titulo,tipo});
     const F=filtradas(), R=resumen(F), filt=textoFiltro();
-    const colsG=n=>[col('nombre',n,'texto'),col('total','Líneas','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')];
+    const colsG=n=>[col('nombre',n,'texto'),col('total','Telas','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')];
     return {titulo:'Liquidación de Corte',sub:'Filtro: '+filt,
       resumen:[
-        {titulo:'Avance de liquidación',nota:'Línea = orden de corte con una tela. Liquidada = % de desbalance de corte en pieza menor a 100%. % liquidado = líneas liquidadas entre líneas del reporte.',
-         columnas:[col('total','Líneas del reporte','entero'),col('ocTotal','Órdenes de corte','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')],
+        {titulo:'Avance de liquidación',nota:'Se cuenta cada tela de cada orden de corte. Liquidada = % de desbalance de corte en pieza menor a 100%. % liquidado = telas liquidadas entre telas de las órdenes de corte.',
+         columnas:[col('total','Telas de órdenes de corte','entero'),col('ocTotal','Órdenes de corte','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')],
          filas:[R]},
-        {titulo:'% liquidado por mes',nota:'Líneas liquidadas sobre las líneas de cada mes, según la fecha de la orden de corte.',
-         columnas:[col('ano','Año','alfanumerico'),col('nombre','Mes','texto'),col('total','Líneas','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')],filas:porMes(F)},
-        {titulo:'Avance por módulo',nota:'Líneas liquidadas sobre las líneas de cada módulo.',columnas:colsG('Módulo'),filas:porGrupo(F,'modulo')},
-        {titulo:'Avance por grupo',nota:'Líneas liquidadas sobre las líneas de cada grupo de producción.',columnas:colsG('Grupo'),filas:porGrupo(F,'grupo')}],
+        {titulo:'% liquidado por mes',nota:'Telas liquidadas sobre las telas de cada mes, según la fecha de la orden de corte.',
+         columnas:[col('ano','Año','alfanumerico'),col('nombre','Mes','texto'),col('total','Telas','entero'),col('liq','Liquidadas','entero'),col('pen','Por liquidar','entero'),col('pct','% liquidado','porcentaje')],filas:porMes(F)},
+        {titulo:'Avance por módulo',nota:'Telas liquidadas sobre las telas de cada módulo.',columnas:colsG('Módulo'),filas:porGrupo(F,'modulo')},
+        {titulo:'Avance por grupo',nota:'Telas liquidadas sobre las telas de cada grupo de producción.',columnas:colsG('Grupo'),filas:porGrupo(F,'grupo')}],
       detalle:{nota:'Una fila por orden de corte y tela.',
         columnas:[col('est','Estado','texto'),col('grupo','Grupo','alfanumerico'),col('estilo','Estilo','alfanumerico'),col('oc','OC','alfanumerico'),col('op','OP','alfanumerico'),
           col('tela_cod','Código de tela','alfanumerico'),col('tela','Tela','texto'),col('color','Color','texto'),col('f','Fecha','fecha'),col('modulo','Módulo','texto'),col('partida','Partida','alfanumerico'),
