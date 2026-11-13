@@ -17,17 +17,18 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
 - Filtros: buscar estilo (solo estilo), año, mes, módulo y grupo. Estilo y grupo son cuadros donde se escribe y van saliendo las opciones (`<datalist>`), y también se puede abrir la lista y elegir (pedido de Christian, 13/11/2026); el grupo filtra por lo escrito (contiene). Por defecto se ve todo lo cargado. La barra lleva `data-ls-fijo` para que lo escrito en los filtros no cuente como trabajo sin guardar. Botón "Limpiar" en la barra (pedido de Christian, 13/11/2026): quita de una vez estilo, año, mes, módulo, grupo y el filtro Liquidadas / Por liquidar; sale apagado cuando no hay nada que limpiar.
 - Excel LIVES (Resumen igual a la pantalla y Detalle) e Imprimir. Solo lectura: no tiene formulario.
 - "Merma corte" llega vacía en el reporte: se guarda pero no se muestra.
+- Datos cargados al 13/11/2026: 9 495 telas de 2023 a 2026 (reporte 01/01/2023–13/12/2024 y reporte 01/01/2025–13/11/2026). Del 13 al 31/12/2024 no hay nada cargado.
 
 ## Cómo se actualiza (decisión de Christian, 13/11/2026)
 Nadie sube archivos desde la pantalla. Christian descarga el reporte del sistema a Descargas (`liquidacion de corte.xlsx`) y le pide a Claude que lo actualice. Claude:
 1. copia el Excel a `AD\datos\Corte\Liquidacion` (nunca a GitHub);
-2. corre `carga/cargar_liquidacion.py "<ruta>"` para revisar (se detiene si el reporte cambió de forma; solo filas visibles);
+2. corre `carga/cargar_liquidacion.py "<ruta>"` para revisar (se detiene si el reporte cambió de forma; solo filas visibles); Solo se saltan las filas sin OC: las que traen el grupo en blanco SÍ entran (corregido el 13/11/2026; en el avance por grupo salen como "Sin dato").
 3. muestra el resumen y, con el visto bueno, corre lo mismo con `--enviar` (acción `cargar`).
 Cada carga reemplaza las líneas que ya había con fecha dentro del rango del reporte y las de la misma OC + tela + color + partida. Una línea "por liquidar" de un reporte viejo solo cambia si se vuelve a descargar un reporte que la incluya.
 
 ## Base de datos (Supabase lives-datos)
 - Tablas: `liqc_cargas` (un registro por reporte cargado), `liqc_lineas` (las líneas), `liqc_parametros` (`registro_libre`).
-- Vista: `publico_liqc_lineas`. Funciones: `liqc_api` (puerta única: `leer`, `puede`, `cargar`) y `liqc_puede`.
+- Vista: `publico_liqc_lineas`. Funciones: `liqc_api` (puerta única: `leer`, `puede`, `cargar`) y `liqc_puede`. Desde el 13/11/2026 (Lq02) `liqc_api` devuelve `json`, no `jsonb`: con 9 495 líneas el jsonb tardaba hasta 9 s y la base cortaba la consulta; con json la lectura queda en unos 2 s. Si la base sigue creciendo, lo siguiente es que `leer` entregue menos columnas o por año.
 - Códigos (regla "Todo codificado"): tela, color y módulo se guardan con su código del sistema (`tela_cod`, `color_cod`, `modulo_cod`) separado del nombre. En pantalla se ve el nombre; el código de tela sí se muestra.
 - No usa Storage. En el navegador solo guarda la vista elegida (tarjetas o tabla).
 

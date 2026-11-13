@@ -90,8 +90,8 @@ def leer(ruta):
                 hasta = a_fecha(ws.cell(f, c + 1).value)
     lineas, ocultas = [], 0
     for f in range(cab + 2, ws.max_row + 1):
-        if not txt(cel('B', f)) or not txt(cel('D', f)):
-            continue                       # filas vacias y las de calculos propios al pie
+        if not txt(cel('D', f)):
+            continue                       # filas vacias y las de calculos propios al pie (sin OC). El grupo en blanco SI entra
         if ws.row_dimensions[f].hidden:    # regla: solo filas visibles
             ocultas += 1
             continue
