@@ -6,6 +6,11 @@ Uso (lo corre Claude en la PC; el Excel nunca va a GitHub):
   python -I cargar_liquidacion.py "<ruta del .xlsx>"                 -> solo revisa y muestra el resumen
   python -I cargar_liquidacion.py "<ruta del .xlsx>" --json sal.json -> ademas guarda el JSON
   python -I cargar_liquidacion.py "<ruta del .xlsx>" --enviar        -> lo carga en la base
+  python -I cargar_liquidacion.py "<ruta del .xlsx>" --enviar --sin-alertas
+                                   -> lo carga sin generar alertas (para un reporte historico)
+
+Al cargar, la base compara cada tela con lo que habia y anota las alertas para Alertas LIVES
+(tela liquidada, volvio a por liquidar, cambio de porcentaje). La respuesta dice cuantas salieron.
 
 El calculo del cuadro (celdas W44, W45 y W46) NO se lee del Excel: lo hace la base con cada linea.
   total       = lineas con dato en "% DESBALANCE" de CORTE PIEZA
@@ -124,8 +129,11 @@ def resumen(d):
             'ordenes_de_corte': len({r['oc'] for r in d['lineas']})}
 
 
-def enviar(d, archivo):
-    cuerpo = json.dumps({'p_accion': 'cargar', 'p': dict(d, usuario=USUARIO, archivo=archivo)}).encode('utf-8')
+def enviar(d, archivo, sin_alertas=False):
+    p = dict(d, usuario=USUARIO, archivo=archivo)
+    if sin_alertas:
+        p['sin_alertas'] = 'si'
+    cuerpo = json.dumps({'p_accion': 'cargar', 'p': p}).encode('utf-8')
     req = urllib.request.Request(SB + '/rest/v1/rpc/liqc_api', data=cuerpo, method='POST',
                                  headers={'Content-Type': 'application/json', 'apikey': KEY})
     try:
@@ -153,7 +161,14 @@ def main():
         print('JSON guardado en', sal)
     if '--enviar' in sys.argv:
         nombre = ruta.replace('\\', '/').split('/')[-1]
-        print('Respuesta de la base:', json.dumps(enviar(d, nombre), ensure_ascii=False))
+        r = enviar(d, nombre, '--sin-alertas' in sys.argv)
+        print('Respuesta de la base:', json.dumps(r, ensure_ascii=False))
+        if r.get('cambios_error'):
+            print('AVISO: la carga se hizo, pero la comparacion para Alertas LIVES fallo:', r['cambios_error'])
+        elif '--sin-alertas' in sys.argv:
+            print('Alertas LIVES: carga sin alertas (a pedido).')
+        else:
+            print('Alertas LIVES: %s alerta(s) de liquidacion.' % r.get('cambios', 'sin dato (la base aun no compara)'))
 
 
 if __name__ == '__main__':

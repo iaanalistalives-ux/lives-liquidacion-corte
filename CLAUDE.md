@@ -24,6 +24,8 @@ Nadie sube archivos desde la pantalla. Christian descarga el reporte del sistema
 1. copia el Excel a `AD\datos\Corte\Liquidacion` (nunca a GitHub);
 2. corre `carga/cargar_liquidacion.py "<ruta>"` para revisar (se detiene si el reporte cambió de forma; solo filas visibles); Solo se saltan las filas sin OC: las que traen el grupo en blanco SÍ entran (corregido el 13/11/2026; en el avance por grupo salen como "Sin dato").
 3. muestra el resumen y, con el visto bueno, corre lo mismo con `--enviar` (acción `cargar`).
+Alertas LIVES (desde el 17/11/2026, registro `Oc04`): al cargar, `liqc_api` compara cada tela con lo que había ANTES de reemplazar (`opcambios_liq_comparar_`) y anota en `opcambios_liq_historial` las telas que quedaron liquidadas, las que volvieron a "por liquidar" y las que cambiaron su % de desbalance de pieza. La respuesta de `cargar` trae `cambios` (cuántas alertas) y `cambios_error` (si la comparación falla, la carga igual se hace); el programa lo dice al terminar. Para cargar un reporte histórico sin llenar la pantalla de alertas: `--enviar --sin-alertas`. Detalle en el CLAUDE.md de `lives-alertas-op`.
+
 Cada carga reemplaza las líneas que ya había con fecha dentro del rango del reporte y las de la misma OC + tela + color + partida. Una línea "por liquidar" de un reporte viejo solo cambia si se vuelve a descargar un reporte que la incluya.
 
 Siempre el año completo (decisión de Christian, 17/11/2026): el reporte se descarga del 1 de enero del año en curso a la fecha, nunca solo el mes. Con solo el mes no se borra nada, pero lo que quedó "Por liquidar" en meses anteriores se queda congelado aunque después lo liquiden, y el % liquidado sale más bajo que la realidad.
