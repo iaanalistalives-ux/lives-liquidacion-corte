@@ -116,9 +116,34 @@ def leer(ruta):
         lineas.append(r)
     if not lineas:
         raise SystemExit('El reporte no trae lineas.')
+    lineas, repetidas = sin_repetidas(lineas)
     fechas = [r['fecha'] for r in lineas]
     desde, hasta = desde or min(fechas), hasta or max(fechas)
-    return {'desde': desde, 'hasta': hasta, 'lineas': lineas}, ocultas
+    return {'desde': desde, 'hasta': hasta, 'lineas': lineas}, ocultas, repetidas
+
+
+def sin_repetidas(lineas):
+    """El reporte a veces trae la misma tela de la misma orden de corte dos veces (misma OC, tela, color y
+    partida, con las mismas cantidades; solo cambia el modulo de liquidacion, una en blanco). Entra una sola
+    vez: la que trae el modulo de liquidacion. Si las cantidades NO son iguales, no se toca: entran las dos."""
+    fuera = ('orden', 'modulo_liq')
+    vistas, quitar, repetidas = {}, set(), []
+    for i, r in enumerate(lineas):
+        clave = (r['oc'], r['tela_cod'].upper(), r['color_cod'].upper(), r['partida'])
+        igual = tuple((k, v) for k, v in sorted(r.items()) if k not in fuera)
+        j = vistas.get((clave, igual))
+        if j is None:
+            vistas[(clave, igual)] = i
+            continue
+        if r['modulo_liq'] and not lineas[j]['modulo_liq']:
+            quitar.add(j); vistas[(clave, igual)] = i
+        else:
+            quitar.add(i)
+        repetidas.append('OC %s - tela %s - partida %s' % (r['oc'], r['tela_cod'], r['partida']))
+    queda = [r for i, r in enumerate(lineas) if i not in quitar]
+    for n, r in enumerate(queda, 1):
+        r['orden'] = n
+    return queda, repetidas
 
 
 def resumen(d):
@@ -147,13 +172,15 @@ def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
     ruta = sys.argv[1]
-    d, ocultas = leer(ruta)
+    d, ocultas, repetidas = leer(ruta)
     s = resumen(d)
     print('Reporte del %s al %s' % (d['desde'], d['hasta']))
     print('Lineas: %(lineas)d (%(ordenes_de_corte)d ordenes de corte) | cuentan: %(total)d | liquidadas: %(liquidadas)d | por liquidar: %(por_liquidar)d' % s)
     print('%% liquidado: %s' % ('sin dato' if s['pct'] is None else '%.2f%%' % (s['pct'] * 100)))
     if ocultas:
         print('AVISO: %d filas ocultas con datos no se cargaron (regla: solo filas visibles).' % ocultas)
+    if repetidas:
+        print('AVISO: %d fila(s) repetida(s) del reporte entraron una sola vez: %s' % (len(repetidas), '; '.join(repetidas)))
     if '--json' in sys.argv:
         sal = sys.argv[sys.argv.index('--json') + 1]
         with open(sal, 'w', encoding='utf-8') as f:
