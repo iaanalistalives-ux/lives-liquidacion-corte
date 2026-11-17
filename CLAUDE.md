@@ -26,6 +26,11 @@ Nadie sube archivos desde la pantalla. Christian descarga el reporte del sistema
 3. muestra el resumen y, con el visto bueno, corre lo mismo con `--enviar` (acción `cargar`).
 Cada carga reemplaza las líneas que ya había con fecha dentro del rango del reporte y las de la misma OC + tela + color + partida. Una línea "por liquidar" de un reporte viejo solo cambia si se vuelve a descargar un reporte que la incluya.
 
+Siempre el año completo (decisión de Christian, 17/11/2026): el reporte se descarga del 1 de enero del año en curso a la fecha, nunca solo el mes. Con solo el mes no se borra nada, pero lo que quedó "Por liquidar" en meses anteriores se queda congelado aunque después lo liquiden, y el % liquidado sale más bajo que la realidad.
+- Antes de enviar, Claude confirma que el rango que muestra el programa empieza el 1 de enero del año en curso; si trae solo un mes u otro rango, avisa antes de cargar.
+- En enero y febrero conviene descargar desde el 1 de enero del año anterior, para que diciembre no quede congelado.
+- Los años anteriores solo se ponen al día si Christian descarga un reporte que los incluya (al 17/11/2026 tenían por liquidar: 240 telas de 2025 y 318 de 2023-2024).
+
 ## Base de datos (Supabase lives-datos)
 - Tablas: `liqc_cargas` (un registro por reporte cargado), `liqc_lineas` (las líneas), `liqc_parametros` (`registro_libre`).
 - Vista: `publico_liqc_lineas`. Funciones: `liqc_api` (puerta única: `leer`, `puede`, `cargar`) y `liqc_puede`. Desde el 13/11/2026 (Lq02) `liqc_api` devuelve `json`, no `jsonb`: con 9 495 líneas el jsonb tardaba hasta 9 s y la base cortaba la consulta; con json la lectura queda en unos 2 s. Si la base sigue creciendo, lo siguiente es que `leer` entregue menos columnas o por año.
